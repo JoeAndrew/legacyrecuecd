@@ -7,10 +7,10 @@ Differences from upstream (intended, not yet realized):
 * trying to follow gentoo-upstable as closely as possible
 * default to BASH 
 * remove support for:
-** sparc
-** really old processors (minimum Core2 or similar-age processor, or more recent Atom)
-** some more obscure hardware (fewer video cards,
-** reiserfs
+* * sparc
+* * really old processors (minimum Core2 or similar-age processor, or more recent Atom)
+* * some more obscure hardware (fewer video cards,
+* * reiserfs
 
 Things I'm considering:
 * default to docache
