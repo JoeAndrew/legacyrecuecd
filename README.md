@@ -1,4 +1,4 @@
-# rescue-cd-legacy
+# Legacy Rescue CD
 
 This is a fork of the 5.3.2 branch of System Rescue CD, with the intent (currently unrealized) of bringing it up to date.
 
