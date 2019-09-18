@@ -7,7 +7,7 @@ LOGFILE="/var/log/dostartx.log"
 CWD="/root"
 
 depend() {
-	after sysresccd
+	after legacyrescuecd
 }
 
 start() {

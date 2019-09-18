@@ -38,7 +38,7 @@ diff -urN catalyst-2.0.17-a/targets/support/filesystem-functions.sh catalyst-2.0
 -	mksquashfs "${clst_destpath}" "$1/${loopname}" ${clst_fsops} -noappend \
 -		|| die "mksquashfs failed, did you emerge squashfs-tools?"
 +	find ${clst_destpath} -type f -name "*.py?" -exec rm -f {} \;
-+	cp ${clst_destpath}/usr/share/sysresccd/sysresccd-type.txt "$1/${loopname}.txt"
++	cp ${clst_destpath}/usr/share/legacyrescuecd/legacyrescuecd-type.txt "$1/${loopname}.txt"
 +	mksquashfs "${clst_destpath}" "$1/${loopname}" ${clst_fsops} -noappend -comp xz -Xbcj x86 -b 262144 || die "mksquashfs failed, did you emerge squashfs-tools?"
  }
  
@@ -59,10 +59,10 @@ diff -urN catalyst-2.0.17-a/targets/support/unmerge.sh catalyst-2.0.17-b/targets
 +DO_SIZ=0
 +DO_LST=0
 +
-+FILEPATH_PKG='/root/sysresccd-pkg.txt'
-+FILEPATH_SIZ='/root/sysresccd-siz.txt'
-+FILEPATH_EIX='/root/sysresccd-eix.txt'
-+FILEPATH_LST='/root/sysresccd-lst.txt'
++FILEPATH_PKG='/root/legacyrescuecd-pkg.txt'
++FILEPATH_SIZ='/root/legacyrescuecd-siz.txt'
++FILEPATH_EIX='/root/legacyrescuecd-eix.txt'
++FILEPATH_LST='/root/legacyrescuecd-lst.txt'
 +
 +# =========================================================================
 +# ======================= create the package list =========================

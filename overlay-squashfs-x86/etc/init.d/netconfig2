@@ -5,7 +5,7 @@ debugnetcfg2='/var/log/netconfig2.log'
 depend()
 {
 	before xdm autorun
-	after sysresccd
+	after legacyrescuecd
 }
 
 log_netconfig2()

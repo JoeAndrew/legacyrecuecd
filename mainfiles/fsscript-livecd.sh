@@ -7,11 +7,13 @@
 
 # define hostname
 rm -f /etc/conf.d/hostname
-echo "HOSTNAME=sysresccd" > /etc/conf.d/hostname
-sed -i -e 's/livecd/sysresccd/g' /etc/hosts
+echo "HOSTNAME=legacyrescuecd" > /etc/conf.d/hostname
+sed -i -e 's/livecd/legacyrescuecd/g' /etc/hosts
 
 # clean the resolv.conf file ("dig . ns" to get list of root DNS)
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+echo "nameserver 8.8.4.4" >> /etc/resolv.conf
 
 # change the default shell
 chsh -s /bin/zsh root
@@ -23,7 +25,7 @@ find /usr/lib -name "*.py?" -exec rm -f {} \; >/dev/null 2>&1
 find /etc -name "._cfg*" -exec rm -f {} \; >/dev/null 2>&1
 
 # remove warning from clock service
-[ -f /etc/conf.d/clock ] && sed -i -e 's:#TIMEZONE="Factory":TIMEZONE="Europe/London":g' /etc/conf.d/clock
+[ -f /etc/conf.d/clock ] && sed -i -e 's:#TIMEZONE="Factory":TIMEZONE="US/Pacific":g' /etc/conf.d/clock
 
 # prevent autoconfig from writing to /etc/conf.d/net
 sed -i -e 's/if ! yesno "${DHCP}"/if false/' /etc/init.d/autoconfig
@@ -121,10 +123,6 @@ rm -f /sbin/insmod.static ; ln -s /sbin/insmod /sbin/insmod.static
 # remove rdev-rebuild temp files
 rm -f /var/cache/revdep-rebuild/*
 
-# create link for reiserfsck
-echo "==> creating /sbin/fsck.reiserfs"
-[ ! -f /sbin/fsck.reiserfs ] && ln /sbin/reiserfsck /sbin/fsck.reiserfs
-
 # prevent the /etc/init.d/net.eth* from being run --> they break the network (done via "ethx, dns, gateway")
 echo "==> removing old net.eth*"
 rm -f /etc/init.d/net.eth*
@@ -159,7 +157,7 @@ then
 fi
 
 # remove alternative kernels in mini edition
-if grep -q 'mini' /usr/share/sysresccd/sysresccd-type.txt
+if grep -q 'mini' /usr/share/legacyrescuecd/legacyrescuecd-type.txt
 then
 	rm -rf /lib*/modules/*alt*
 fi
@@ -243,7 +241,7 @@ localedef -i /usr/share/i18n/locales/de_DE -f ISO-8859-1 /usr/lib/locale/de_DE
 localedef -i /usr/share/i18n/locales/fr_FR -f ISO-8859-1 /usr/lib/locale/fr_FR
 
 # remove packages and files in mini edition
-if grep -q 'mini' /usr/share/sysresccd/sysresccd-type.txt
+if grep -q 'mini' /usr/share/legacyrescuecd/legacyrescuecd-type.txt
 then
 	emerge -C ndiswrapper net-wireless/wireless-tools
 	rm -rf /lib/firmware/{ti*,ueagle*,libertas,iwlwifi*,ath?k*,rtlwifi,brcm}
@@ -270,7 +268,7 @@ then
 	/sbin/rc-update add lvm boot
 	/sbin/rc-update add fixinittab default
 	/sbin/rc-update add sshd default
-	/sbin/rc-update add sysresccd default
+	/sbin/rc-update add legacyrescuecd default
 	/sbin/rc-update add autorun default
 	/sbin/rc-update add netconfig2 default
 	/sbin/rc-update add tigervnc default

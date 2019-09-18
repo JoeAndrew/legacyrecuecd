@@ -29,7 +29,7 @@ parse_opt()
     esac
 }
 
-sysresccd_expand_alldevices()
+legacyrescuecd_expand_alldevices()
 {
     for curdev in $*
     do
@@ -37,7 +37,7 @@ sysresccd_expand_alldevices()
     done
 }
 
-sysresccd_expand_removable()
+legacyrescuecd_expand_removable()
 {
     # Look for the value of 1 in the file /sys/block/sd*/removable
     for curdev in $*
@@ -48,7 +48,7 @@ sysresccd_expand_removable()
     done
 }
 
-sysresccd_runshell()
+legacyrescuecd_runshell()
 {
     if [ -n "$1" ] && [ -x "$1" ]
     then
@@ -59,15 +59,15 @@ sysresccd_runshell()
     exit 1
 }
 
-sysresccd_panic()
+legacyrescuecd_panic()
 {
     bad_msg "$@"
     bad_msg "Running a mini shell (cannot complete the boot process)"
     sleep 2
-    sysresccd_runshell
+    legacyrescuecd_runshell
 }
 
-sysresccd_setup_keymap()
+legacyrescuecd_setup_keymap()
 {
     if [ -z "$SETKMAP" ]
     then
@@ -78,15 +78,15 @@ sysresccd_setup_keymap()
         fi
         [ ! -e /dev/tty0 ] && ln -s /dev/tty1 /dev/tty0
 
-        sysresccd_chooseKeymap
+        legacyrescuecd_chooseKeymap
 
         [ "${DEVBIND:-0}" -eq '1' ] && umount /dev
     else # "setkmap=xx" option was used
-        sysresccd_useKeymap $SETKMAP
+        legacyrescuecd_useKeymap $SETKMAP
     fi
 }
 
-sysresccd_useKeymap()
+legacyrescuecd_useKeymap()
 {
     keymap=$1
 
@@ -108,32 +108,32 @@ sysresccd_useKeymap()
         good_msg "Keeping default keymap"
     else
         bad_msg "Sorry, but keymap ''${keymap}'' is invalid!"
-        sysresccd_chooseKeymap
+        legacyrescuecd_chooseKeymap
     fi
 }
 
-sysresccd_chooseKeymap()
+legacyrescuecd_chooseKeymap()
 {
     good_msg "Loading keymaps"
     cat /lib/keymaps/keymapList
     echo "default choice (US keymap) will be used if no action within 20 seconds"
     read -t 20 -p '<< Load keymap (Enter for default): ' keymap
-    sysresccd_useKeymap $keymap
+    legacyrescuecd_useKeymap $keymap
 }
 
-sysresccd_terminal()
+legacyrescuecd_terminal()
 {
     /bin/consolechars -f /usr/share/consolefonts/ter-v16b.psf
     kbd_mode -u
 }
 
-sysresccd_debug()
+legacyrescuecd_debug()
 {
     # Run debug shell if requested with "minishell" in cmdline
     if [ "${MINISHELL}" = '1' ]
     then
         good_msg "Running a mini shell (as requested by the command line)"
-        sysresccd_runshell ${MINISHELL}
+        legacyrescuecd_runshell ${MINISHELL}
     fi
 }
 
@@ -192,7 +192,7 @@ netconfig_setip()
     echo "netconfig1: ${ipcmd_add} --> ${res}"
 }
 
-sysresccd_speakup()
+legacyrescuecd_speakup()
 {
     if [ -n "${SPEAKUP}" ]
     then
@@ -235,7 +235,7 @@ sysresccd_speakup()
     fi
 }
 
-sysresccd_udev_start()
+legacyrescuecd_udev_start()
 {
     good_msg "Loading kernel modules..."
 
@@ -304,7 +304,7 @@ sysresccd_udev_start()
     rm -f /showmodprobe
 }
 
-sysresccd_udev_stop()
+legacyrescuecd_udev_stop()
 {
     # Stop udevd, we'll miss a few events while we run init, but we catch up
     for proc in /proc/[0-9]*
@@ -315,7 +315,7 @@ sysresccd_udev_stop()
     echo '6' > /proc/sys/kernel/printk
 }
 
-sysresccd_netconfig()
+legacyrescuecd_netconfig()
 {
     good_msg "Performing the network configuration..."
 
@@ -532,7 +532,7 @@ sysresccd_netconfig()
     fi
 }
 
-sysresccd_setup_volumes()
+legacyrescuecd_setup_volumes()
 {
     # Setup dmraid for fake raid devices
     if [ -x "/sbin/dmraid-activate" ] && ! grep -q 'nodmraid' /proc/cmdline
@@ -571,7 +571,7 @@ sysresccd_setup_volumes()
 
 # ============================================================================================================
 
-sysresccd_chroot()
+legacyrescuecd_chroot()
 {
     # check the kernel is able to execute /sbin/init
     good_msg "Checking ${INITPROG} can be executed by the current kernel..."
@@ -581,7 +581,7 @@ sysresccd_chroot()
     echo "   The current running kernel architecture is ${archtype}"
     if [ "${inittype}" = 'ELF64' ] && [ "${archtype}" != 'x86_64' ]
     then
-        sysresccd_panic "You must boot with a 64bit kernel such as rescue64 to run ${INITPROG}"
+        legacyrescuecd_panic "You must boot with a 64bit kernel such as rescue64 to run ${INITPROG}"
     fi
 
     # move /dev to the new root filesystem
@@ -591,7 +591,7 @@ sysresccd_chroot()
 
     if [ ! -x ${NEWROOT}${INITPROG} ]
     then
-        sysresccd_panic "${INITPROG} not found on root filesystem"
+        legacyrescuecd_panic "${INITPROG} not found on root filesystem"
     fi
 
     umount /proc
@@ -601,22 +601,22 @@ sysresccd_chroot()
     exec run-init ${NEWROOT} ${INITPROG} <${NEWROOT}/dev/console >${NEWROOT}/dev/console
 
     # ------------------------------- minishell -------------------------------
-    sysresccd_panic "Failed to run run-init ${NEWROOT} ${INITPROG}"
+    legacyrescuecd_panic "Failed to run run-init ${NEWROOT} ${INITPROG}"
 }
 
 # ============================================================================================================
 # ============================================================================================================
 
-sysresccd_stage1_http()
+legacyrescuecd_stage1_http()
 {
     if ! mount -t tmpfs -o ${CACHESIZE} tmpfs ${BOOTPATH}
     then
-        sysresccd_panic "Cannot create tmpfs on ${BOOTPATH}"
+        legacyrescuecd_panic "Cannot create tmpfs on ${BOOTPATH}"
     fi
 
     if ! echo "${HTTPBOOT}" | grep -q '^http://'
     then
-        sysresccd_panic "You requested an http boot, the address is not a valid http:// url."
+        legacyrescuecd_panic "You requested an http boot, the address is not a valid http:// url."
     fi
 
     BASEADDR=$(busybox dirname ${HTTPBOOT})
@@ -657,12 +657,12 @@ sysresccd_stage1_http()
 
         if [ ${res1} -ne 0 ] || [ ${res2} -ne 0 ]
         then
-            sysresccd_panic "Cannot download the files: wget failed. May be due to lack of memory"
+            legacyrescuecd_panic "Cannot download the files: wget failed. May be due to lack of memory"
         fi
 
         if [ ! -f "${BOOTPATH}/${filename}" ]
         then
-            sysresccd_panic "Cannot download the \"${filename}\" boot file."
+            legacyrescuecd_panic "Cannot download the \"${filename}\" boot file."
         fi
 
         md5now=$(/bin/busybox md5sum ${BOOTPATH}/${filename} | cut -d ' ' -f1)
@@ -671,21 +671,21 @@ sysresccd_stage1_http()
         then
             good_msg "Successfully downloaded and md5 checked \"${filename}\""
         else
-            sysresccd_panic "Filesystem image ${filename} is corrupt: md5sum incorrect"
+            legacyrescuecd_panic "Filesystem image ${filename} is corrupt: md5sum incorrect"
         fi
     done
 }
 
-sysresccd_stage1_tftp()
+legacyrescuecd_stage1_tftp()
 {
     if ! mount -t tmpfs -o ${CACHESIZE} tmpfs ${BOOTPATH}
     then
-        sysresccd_panic "Cannot create tmpfs on ${BOOTPATH}"
+        legacyrescuecd_panic "Cannot create tmpfs on ${BOOTPATH}"
     fi
 
     if ! echo "${TFTPBOOT}" | grep -q '^tftp://'
     then
-        sysresccd_panic "You requested an tftp boot, the address is not a valid tftp:// url."
+        legacyrescuecd_panic "You requested an tftp boot, the address is not a valid tftp:// url."
     fi
 
     url="$(echo ${TFTPBOOT} | sed 's!tftp://!!g')"
@@ -727,7 +727,7 @@ sysresccd_stage1_tftp()
 
         if [ ${res1} -ne 0 ] || [ ${res2} -ne 0 ]
         then
-            sysresccd_panic "Cannot download the files: tftp failed. May be due to lack of memory"
+            legacyrescuecd_panic "Cannot download the files: tftp failed. May be due to lack of memory"
         fi
 
         md5now=$(/bin/busybox md5sum ${BOOTPATH}/${filename} | cut -d ' ' -f1)
@@ -736,12 +736,12 @@ sysresccd_stage1_tftp()
         then
             good_msg "Successfully downloaded and md5 checked \"${filename}\""
         else
-            sysresccd_panic "Filesystem image ${filename} is corrupt: md5sum incorrect"
+            legacyrescuecd_panic "Filesystem image ${filename} is corrupt: md5sum incorrect"
         fi
     done
 }
 
-sysresccd_stage1_nfs()
+legacyrescuecd_stage1_nfs()
 {
     nfsurl=$(echo ${NFSBOOT} | sed -e 's!nfs://!!g')
 
@@ -749,13 +749,13 @@ sysresccd_stage1_nfs()
     cmd="mount -t nfs -o intr,nolock,rsize=1024,wsize=1024 ${nfsurl} ${BOOTPATH}"
     if ! ${cmd}
     then
-        sysresccd_panic "Cannot mount NFS: ${cmd}"
+        legacyrescuecd_panic "Cannot mount NFS: ${cmd}"
     fi
     good_msg "Successfully mounted the NFS filesystem"
 
     if [ ! -f "${BOOTPATH}/${SUBDIR}/${LOOPDAT}" ]
     then
-        sysresccd_panic "Cannot find the \"${SUBDIR}/${LOOPDAT}\" boot file."
+        legacyrescuecd_panic "Cannot find the \"${SUBDIR}/${LOOPDAT}\" boot file."
     fi
 
     md5now=$(/bin/busybox md5sum ${BOOTPATH}/${SUBDIR}/${LOOPDAT} | cut -d ' ' -f1)
@@ -764,7 +764,7 @@ sysresccd_stage1_nfs()
     then
         good_msg "Successfully checked md5 sum of ${BOOTPATH}/${LOOPDAT}"
     else
-        sysresccd_panic "md5sum checksum is invalid on the root filesystem image"
+        legacyrescuecd_panic "md5sum checksum is invalid on the root filesystem image"
     fi
 
     # load system rescue modules (srm files)
@@ -781,16 +781,16 @@ sysresccd_stage1_nfs()
     fi
 }
 
-sysresccd_find_devices() # $1=devtype
+legacyrescuecd_find_devices() # $1=devtype
 {
     devtype="$1"
 
     case "${devtype}" in
     auto) # all devices
-        searchdevices=$(sysresccd_expand_alldevices ${BLKDEVICES})
+        searchdevices=$(legacyrescuecd_expand_alldevices ${BLKDEVICES})
         ;;
     rmdev) # removable devices only
-        searchdevices=$(sysresccd_expand_removable ${BLKDEVICES})
+        searchdevices=$(legacyrescuecd_expand_removable ${BLKDEVICES})
         ;;
     UUID\=*) # find file on filesystem having the speficed UUID
         uuid=`parse_opt "${devtype}"`
@@ -824,7 +824,7 @@ sysresccd_find_devices() # $1=devtype
 }
 
 # find the device that contains a file with that path: ${SUBDIR}/${LOOPDAT}
-sysresccd_find_file() # $1=devtype, $2=filepath $3=mountdir, $4=mode
+legacyrescuecd_find_file() # $1=devtype, $2=filepath $3=mountdir, $4=mode
 {
     devtype="$1"   # on which devices should we search that file
     filepath="$2"  # path of the file we are looking for (eg: "/sysrcd.dat")
@@ -844,7 +844,7 @@ sysresccd_find_file() # $1=devtype, $2=filepath $3=mountdir, $4=mode
         ;;
     esac
 
-    searchdevices="$(sysresccd_find_devices ${devtype})"
+    searchdevices="$(legacyrescuecd_find_devices ${devtype})"
 
     SEARCHDEVICE='' # result returned
     mkdir -p ${mountdir}
@@ -883,7 +883,7 @@ sysresccd_find_file() # $1=devtype, $2=filepath $3=mountdir, $4=mode
                             good_msg "File ${filepath} found on device ${curdev}"
                             if [ "${mountmode}" = 'rw' ] && ! mount -o remount,rw,noatime ${mountdir}
                             then
-                                sysresccd_panic "Cannot remount ${curdev} in read-write mode"
+                                legacyrescuecd_panic "Cannot remount ${curdev} in read-write mode"
                             fi
                             return 0
                         else
@@ -898,7 +898,7 @@ sysresccd_find_file() # $1=devtype, $2=filepath $3=mountdir, $4=mode
 }
 
 # find the device which contains sysrcd.dat and mount it on ${BOOTPATH}
-sysresccd_stage1_normal()
+legacyrescuecd_stage1_normal()
 {
     # search for sysrcd.dat on block devices
     good_msg "Searching for ${SUBDIR}/${LOOPDAT} on devices..."
@@ -906,7 +906,7 @@ sysresccd_stage1_normal()
     for attempts in 1 2 3 4 5
     do
         [ ${attempts} -gt 1 ] && sleep 3 && bad_msg "Cannot find device with ${SUBDIR}/${LOOPDAT}. Retrying..."
-        if sysresccd_find_file 'auto' ${SUBDIR}/${LOOPDAT} ${BOOTPATH} 'ro'
+        if legacyrescuecd_find_file 'auto' ${SUBDIR}/${LOOPDAT} ${BOOTPATH} 'ro'
         then
             if [ "${DOCHECK}" = '1' ] # dont run checksum by default on slow medias (cdrom, usb, ...)
             then
@@ -920,7 +920,7 @@ sysresccd_stage1_normal()
                     then
                         good_msg "md5 checksum of ${LOOPDAT} successfully checked"
                     else
-                        sysresccd_panic "md5sum checksum is invalid on the root filesystem image"
+                        legacyrescuecd_panic "md5sum checksum is invalid on the root filesystem image"
                     fi
                 fi
             fi
@@ -932,7 +932,7 @@ sysresccd_stage1_normal()
     # stop here if main squashfs file not found
     if [ -z "${filefound}" ]
     then
-        sysresccd_panic "Cannot find ${SUBDIR}/${LOOPDAT} on devices"
+        legacyrescuecd_panic "Cannot find ${SUBDIR}/${LOOPDAT} on devices"
     fi
 
     # cache files to memory if option enabled
@@ -955,7 +955,7 @@ sysresccd_stage1_normal()
         good_msg "Creating tmpfs for caching in ${CACHEDIR}"
         if ! mount -t tmpfs -o ${CACHESIZE} tmpfs ${CACHEDIR}
         then
-            sysresccd_panic "Cannot mount tmpfs filesystem on ${CACHEDIR} for caching"
+            legacyrescuecd_panic "Cannot mount tmpfs filesystem on ${CACHEDIR} for caching"
         fi
 
         # --------------- Cache autorun files
@@ -1063,7 +1063,7 @@ sysresccd_stage1_normal()
     fi
 }
 
-sysresccd_stage2_nbd()
+legacyrescuecd_stage2_nbd()
 {
     nbdurl=$(echo ${NBDBOOT} | sed -e 's!nbd://!!g')
     NBD_SERVER=$(echo "${nbdurl}" | sed 's/:.*//')
@@ -1075,18 +1075,18 @@ sysresccd_stage2_nbd()
 
     if [ ! -x "${NBD_PROG}" ]
     then
-        sysresccd_panic "Error: program ${NBD_PROG} not found"
+        legacyrescuecd_panic "Error: program ${NBD_PROG} not found"
     fi
 
     if ! /sbin/modprobe -b nbd
     then
-        sysresccd_panic "Error: cannot load nbd kernel module"
+        legacyrescuecd_panic "Error: cannot load nbd kernel module"
     fi
 
     good_msg "Setting up the NBD boot device..."
     if ! ${NBD_PROG} -N "${NBD_PORT}" "${NBD_SERVER}" "${NBD_DEVICE}" -persist
     then
-        sysresccd_panic "Error: nbd-client failed to connect to ${NBD_SERVER}:${NBD_PORT}"
+        legacyrescuecd_panic "Error: nbd-client failed to connect to ${NBD_SERVER}:${NBD_PORT}"
     else
         good_msg "nbd-client successfully connected to ${NBD_SERVER}:${NBD_PORT}"
     fi
@@ -1094,13 +1094,13 @@ sysresccd_stage2_nbd()
     cmd="mount -t squashfs -o ro ${NBD_DEVICE} ${SQUASHFSMNT}"
     if ! ${cmd}
     then
-        sysresccd_panic "ERROR: Cannot mount ${NBD_DEVICE}. ${cmd}"
+        legacyrescuecd_panic "ERROR: Cannot mount ${NBD_DEVICE}. ${cmd}"
     else
         good_msg "successfully mounted ${NBD_DEVICE} on ${SQUASHFSMNT}"
     fi
 }
 
-sysresccd_stage2_normal() # mount ${BOOTPATH}/sysrcd.dat on ${SQUASHFSMNT}
+legacyrescuecd_stage2_normal() # mount ${BOOTPATH}/sysrcd.dat on ${SQUASHFSMNT}
 {
     good_msg "Mounting the squashfs root filesystem on ${SQUASHFSMNT}"
 
@@ -1116,11 +1116,11 @@ sysresccd_stage2_normal() # mount ${BOOTPATH}/sysrcd.dat on ${SQUASHFSMNT}
 
     if [ "$mountok" != "ok" ]
     then
-        sysresccd_panic "ERROR: Cannot mount ${LOOPDAT}. Kernel version [$(uname -a)]"
+        legacyrescuecd_panic "ERROR: Cannot mount ${LOOPDAT}. Kernel version [$(uname -a)]"
     fi
 }
 
-sysresccd_stage3_normal() # "backstore" + "aufs" + "mount --move"
+legacyrescuecd_stage3_normal() # "backstore" + "aufs" + "mount --move"
 {
     AUFSEXTRA=""
     MNTSEXTRA=""
@@ -1134,7 +1134,7 @@ sysresccd_stage3_normal() # "backstore" + "aufs" + "mount --move"
         mkdir -p "${curmnt}"
         if ! mount "${cursrm}" "${curmnt}"
         then
-            sysresccd_panic "Cannot mount the loopback system rescue module file ${cursrm}"
+            legacyrescuecd_panic "Cannot mount the loopback system rescue module file ${cursrm}"
         fi
         AUFSEXTRA="${curmnt}=ro:${AUFSEXTRA}"
         MNTSEXTRA="${curmnt} ${MNTSEXTRA}"
@@ -1172,25 +1172,25 @@ sysresccd_stage3_normal() # "backstore" + "aufs" + "mount --move"
             case "${BACKSTORE_DEVTYPE}" in
                 UUID\=* | LABEL\=* )
                     good_msg "Mounting device ${BACKSTORE_DEVTYPE} as backing store"
-                    BACKSTORE_DEV="$(sysresccd_find_devices ${BACKSTORE_DEVTYPE})"
+                    BACKSTORE_DEV="$(legacyrescuecd_find_devices ${BACKSTORE_DEVTYPE})"
                     if ! mount ${BACKSTORE_DEV} ${BACKSTORE_MEM}
                     then
-                        sysresccd_panic "Cannot mount the backstore device ${BACKSTORE_DEV}"
+                        legacyrescuecd_panic "Cannot mount the backstore device ${BACKSTORE_DEV}"
                     fi
                     BACKSTORE_FOUND='1'
                     ;;
                 rmdev | auto | * )
-                    sysresccd_panic "UUID or LABEL needed to mount a block device as backing store"
+                    legacyrescuecd_panic "UUID or LABEL needed to mount a block device as backing store"
                     ;;
             esac
         else
             good_msg "Searching for ${SUBDIR}/${BACKSTORE_DAT} on devices..."
-            if sysresccd_find_file ${BACKSTORE_DEVTYPE} ${SUBDIR}/${BACKSTORE_DAT} ${BACKSTORE_MNT} 'rw'
+            if legacyrescuecd_find_file ${BACKSTORE_DEVTYPE} ${SUBDIR}/${BACKSTORE_DAT} ${BACKSTORE_MNT} 'rw'
             then
                 good_msg "Backing store ${SUBDIR}/${BACKSTORE_DAT} found on ${SEARCHDEVICE}"
                 if ! mount ${BACKSTORE_MNT}/${SUBDIR}/${BACKSTORE_DAT} ${BACKSTORE_MEM}
                 then
-                    sysresccd_panic "Cannot mount the loopback backstore file ${SUBDIR}/${BACKSTORE_DAT}"
+                    legacyrescuecd_panic "Cannot mount the loopback backstore file ${SUBDIR}/${BACKSTORE_DAT}"
                 fi
                 BACKSTORE_FOUND='1'
             fi
@@ -1201,19 +1201,19 @@ sysresccd_stage3_normal() # "backstore" + "aufs" + "mount --move"
     # 3. store modifications in a tmpfs filesystem if there is no backstore
     if [ -z "${BACKSTORE_FOUND}" ] && ! mount -t tmpfs tmpfs ${BACKSTORE_MEM}
     then
-        sysresccd_panic "Fatal error: cannot mount tmpfs on ${BACKSTORE_MEM}"
+        legacyrescuecd_panic "Fatal error: cannot mount tmpfs on ${BACKSTORE_MEM}"
     fi
 
     # 4. create the aufs filesystem
     if ! grep -q aufs /proc/filesystems
     then
-        sysresccd_panic "Fatal error: aufs filesystem not supported by the kernel."
+        legacyrescuecd_panic "Fatal error: aufs filesystem not supported by the kernel."
     fi
     if mount -t aufs none ${NEWROOT} -o dirs=${BACKSTORE_MEM}=rw:${AUFSEXTRA}${SQUASHFSMNT}=ro -o noatime
     then
         good_msg "The aufs filesystem has been created"
     else
-        sysresccd_panic "Fatal error: cannot mount the aufs filesystem."
+        legacyrescuecd_panic "Fatal error: cannot mount the aufs filesystem."
     fi
 
     # 5. copy cached autorun scripts
@@ -1227,7 +1227,7 @@ sysresccd_stage3_normal() # "backstore" + "aufs" + "mount --move"
     mkdir -p ${TFTPBOOT_DIR}
     if ! mount -t tmpfs tmpfs ${TFTPBOOT_MEM} -o size=512m
     then
-        sysresccd_panic "Fatal error: cannot mount tmp filesystem on ${TFTPBOOT_MEM}"
+        legacyrescuecd_panic "Fatal error: cannot mount tmp filesystem on ${TFTPBOOT_MEM}"
     fi
 
     # 7. create writable /tftpboot directory based on ${BOOTPATH} only if it has been mounted
@@ -1264,7 +1264,7 @@ sysresccd_stage3_normal() # "backstore" + "aufs" + "mount --move"
             cmd="mount -n --move ${mntdir} ${targetdir}"
             if ! ${cmd}
             then
-                sysresccd_panic "${cmd} failed"
+                legacyrescuecd_panic "${cmd} failed"
             fi
         fi
     done
@@ -1346,7 +1346,7 @@ sysresccd_stage3_normal() # "backstore" + "aufs" + "mount --move"
     rm -f ${NEWROOT}/etc/init.d/drbd
 }
 
-sysresccd_stage3_rootsys() # mount the root partition on ${SQUASHFSMNT}
+legacyrescuecd_stage3_rootsys() # mount the root partition on ${SQUASHFSMNT}
 {
     good_msg "Searching a root filesystem having ${INITPROG}"
 
@@ -1354,7 +1354,7 @@ sysresccd_stage3_rootsys() # mount the root partition on ${SQUASHFSMNT}
     for attempts in 1 2 3 4 5
     do
         [ ${attempts} -gt 1 ] && sleep 3 && bad_msg "Cannot find device with ${INITPROG}. Retrying..."
-        if sysresccd_find_file ${ROOTOPT} ${INITPROG} ${NEWROOT} 'rw'
+        if legacyrescuecd_find_file ${ROOTOPT} ${INITPROG} ${NEWROOT} 'rw'
         then
             filefound='1'
             break
@@ -1363,18 +1363,18 @@ sysresccd_stage3_rootsys() # mount the root partition on ${SQUASHFSMNT}
 
     if [ -z "${filefound}" ]
     then
-        sysresccd_panic "Cannot find a valid root filesystem (partition having ${INITPROG})"
+        legacyrescuecd_panic "Cannot find a valid root filesystem (partition having ${INITPROG})"
     fi
 }
 
-sysresccd_stage0_isoloop() # losetup the iso image on /dev/loop0
+legacyrescuecd_stage0_isoloop() # losetup the iso image on /dev/loop0
 {
     good_msg "Searching for ${SUBDIR}/${ISOLOOP} on devices..."
     filefound=''
     for attempts in 1 2 3 4 5
     do
         [ ${attempts} -gt 1 ] && sleep 3 && bad_msg "Cannot find device with ${SUBDIR}/${ISOLOOP}. Retrying..."
-        if sysresccd_find_file 'auto' ${SUBDIR}/${ISOLOOP} ${ISOSTORE} 'ro'
+        if legacyrescuecd_find_file 'auto' ${SUBDIR}/${ISOLOOP} ${ISOSTORE} 'ro'
         then
             filefound='1'
             break
@@ -1383,7 +1383,7 @@ sysresccd_stage0_isoloop() # losetup the iso image on /dev/loop0
 
     if [ -z "${filefound}" ]
     then
-        sysresccd_panic "Cannot find device with ${SUBDIR}/${ISOLOOP}"
+        legacyrescuecd_panic "Cannot find device with ${SUBDIR}/${ISOLOOP}"
     fi
 
     if losetup /dev/loop0 ${ISOSTORE}/${SUBDIR}/${ISOLOOP}
@@ -1397,11 +1397,11 @@ sysresccd_stage0_isoloop() # losetup the iso image on /dev/loop0
 
 # =============================================================================
 
-sysresccd_stage0() # special preparations for isoroot
+legacyrescuecd_stage0() # special preparations for isoroot
 {
     case "${STAGE0}" in
         isoloop)
-            sysresccd_stage0_isoloop
+            legacyrescuecd_stage0_isoloop
             STAGE1='normal'
             ;;
         *)
@@ -1410,7 +1410,7 @@ sysresccd_stage0() # special preparations for isoroot
     esac
 }
 
-sysresccd_stage1() # find sysrcd.dat and put it in ${BOOTPATH}
+legacyrescuecd_stage1() # find sysrcd.dat and put it in ${BOOTPATH}
 {
     case "${STAGE1}" in
         rootsys)
@@ -1420,56 +1420,56 @@ sysresccd_stage1() # find sysrcd.dat and put it in ${BOOTPATH}
             STAGE2="nbd"
             ;;
         http)
-            sysresccd_stage1_http
+            legacyrescuecd_stage1_http
             STAGE2="normal"
             ;;
         tftp)
-            sysresccd_stage1_tftp
+            legacyrescuecd_stage1_tftp
             STAGE2="normal"
             ;;
         nfs)
-            sysresccd_stage1_nfs
+            legacyrescuecd_stage1_nfs
             STAGE2="normal"
             ;;
         normal)
-            sysresccd_stage1_normal
+            legacyrescuecd_stage1_normal
             STAGE2="normal"
             ;;
     esac
 }
 
-sysresccd_stage2() # mount ${BOOTPATH}/sysrcd.dat on ${SQUASHFSMNT}
+legacyrescuecd_stage2() # mount ${BOOTPATH}/sysrcd.dat on ${SQUASHFSMNT}
 {
     case "${STAGE2}" in
         rootsys)
             STAGE3="rootsys"
             ;;
         nbd)
-            sysresccd_stage2_nbd
+            legacyrescuecd_stage2_nbd
             STAGE3="normal"
             ;;
         normal)
-            sysresccd_stage2_normal
+            legacyrescuecd_stage2_normal
             STAGE3="normal"
             ;;
     esac
 }
 
-sysresccd_stage3() # ${NEWROOT}=aufs
+legacyrescuecd_stage3() # ${NEWROOT}=aufs
 {
     case "${STAGE3}" in
         rootsys)
-            sysresccd_stage3_rootsys
+            legacyrescuecd_stage3_rootsys
             ;;
         normal)
-            sysresccd_stage3_normal
+            legacyrescuecd_stage3_normal
             ;;
     esac
 }
 
 # =============================================================================
 
-sysresccd_parsecmdline()
+legacyrescuecd_parsecmdline()
 {
     for x in $(cat /proc/cmdline)
     do
@@ -1654,7 +1654,7 @@ sysresccd_parsecmdline()
 
 # =============================================================================
 
-sysresccd_init()
+legacyrescuecd_init()
 {
     export PATH=/bin:/usr/bin:/sbin:/usr/sbin
 
@@ -1772,18 +1772,18 @@ BLKDEVICES="$BLKDEVICES /dev/mmcblk*"
 
 # =============================================================================
 
-sysresccd_init
-sysresccd_parsecmdline
-sysresccd_terminal
-sysresccd_udev_start
-sysresccd_speakup
-sysresccd_setup_keymap
-sysresccd_setup_volumes
-sysresccd_netconfig
-sysresccd_debug
-sysresccd_stage0
-sysresccd_stage1
-sysresccd_stage2
-sysresccd_stage3
-sysresccd_udev_stop
-sysresccd_chroot
+legacyrescuecd_init
+legacyrescuecd_parsecmdline
+legacyrescuecd_terminal
+legacyrescuecd_udev_start
+legacyrescuecd_speakup
+legacyrescuecd_setup_keymap
+legacyrescuecd_setup_volumes
+legacyrescuecd_netconfig
+legacyrescuecd_debug
+legacyrescuecd_stage0
+legacyrescuecd_stage1
+legacyrescuecd_stage2
+legacyrescuecd_stage3
+legacyrescuecd_udev_stop
+legacyrescuecd_chroot

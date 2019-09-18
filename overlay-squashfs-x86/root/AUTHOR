@@ -1,8 +1,12 @@
-         AUTHORS of SystemRescueCd (x86 edition):
+         AUTHORS of LegacyRescueCd (x86 edition):
          ----------------------------------------
 
+Forked from:
 Homepage:...........http://www.system-rescue-cd.org/
-Forums:.............http://www.system-rescue-cd.org/forums/
+
+Please don't bother the original authors, as they've moved on to the 
+Arch-based 6.x vesion.  If there's interest, we can set up a support forum
+for the legacy versions
 
 * Main Author:
   Francois Dupoux
@@ -16,5 +20,6 @@ Forums:.............http://www.system-rescue-cd.org/forums/
   - Fred alias Sleeper (Eagle driver)
   - Thanks to Melkor for the help to port to unicode
 
-* Many thanks to Isaiah Salinas for update the SysResccd to
-  version 0.2.19 with linux-2.6.
+* Updates and rebranding of 5.3.x to LegacyRescueCD:
+  - Nate Edel
+  with apologies to the above, and any new bugs/errors mine

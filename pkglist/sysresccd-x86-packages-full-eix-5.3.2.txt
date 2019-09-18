@@ -474,8 +474,8 @@ sys-apps/setserial-2.17-r5
 sys-apps/sg3_utils-1.42 : -static-libs
 sys-apps/shadow-4.6 : acl xattr -audit -cracklib -nls -pam -selinux -skey
 sys-apps/smartmontools-6.6 : -caps -daemon -selinux -static -update_drivedb
-sys-apps/sysresccd-custom-3.4.0 : sysrcdfull
-sys-apps/sysresccd-scripts-5.0.0
+sys-apps/legacyrescuecd-custom-3.4.0 : sysrcdfull
+sys-apps/legacyrescuecd-scripts-5.0.0
 sys-apps/sysvinit-2.88-r9 : -ibm -selinux -static KERNEL=-FreeBSD
 sys-apps/tcp-wrappers-7.6.22-r1 : ipv6 -netgroups -static-libs ABI_MIPS=-n32 -n64 -o32 ABI_PPC=-32 -64 ABI_S390=-32 -64 ABI_X86=32 -64 -x32
 sys-apps/udevil-0.4.4-r3

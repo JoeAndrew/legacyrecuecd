@@ -1,0 +1,9 @@
+subarch: amd64
+target: stage2
+version_stamp: baseos
+rel_type: default
+profile: default/linux/amd64/17.1
+snapshot: latest
+source_subpath: default/stage1-amd64-baseos
+portage_confdir: /worksrc/legacyrescuecd-src/portage-etc-x86
+portage_overlay: /worksrc/legacyrescuecd-src/portage-overlay

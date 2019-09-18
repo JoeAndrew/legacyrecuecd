@@ -2,12 +2,12 @@
 
 depend()
 {
-	after sysresccd tigervnc mdadm
+	after legacyrescuecd tigervnc mdadm
 }
 
 start()
 {
-	ebegin "Starting SystemRescueCd autorun scripts"
+	ebegin "Starting LegacyRescueCd autorun scripts"
 	export LANG=en_US.utf8
 	echo "Starting autorun at $(date +%Y%m%d-%H:%M:%S)" > /var/log/autorun.log
 	/usr/sbin/autorun

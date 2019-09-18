@@ -19,7 +19,7 @@ CDFILES=('sysrcd.dat' 'sysrcd.md5' 'version' '???linux/initram.igz'
 usage()
 {
 	cat <<EOF
-${PROGIMG}: SystemRescueCd installation script for USB-sticks
+${PROGIMG}: LegacyRescueCd installation script for USB-sticks
 Syntax: ${PROGIMG} <command> ...
 
 Please, read the manual for help about how to use this script.
@@ -200,13 +200,13 @@ check_sizeof_dev()
 check_disk_freespace()
 {
 	freespace=$(\df -m -P ${1} | grep " ${1}$" | tail -n 1 | awk '{print $4}')
-	sysrcdspc=$(\du -csm ${1}/{sysrcd.dat,bootdisk,bootprog,isolinux,ntpasswd,usb_inst} 2>/dev/null | awk 'END{print $1}')
+	sysrcdspc=$(\du -csm ${1}/{sysrcd.dat,bootdisk,bootprog,isolinux,ntpasswd,usb_inst} 2>/dev/null | grep total$ | awk '{print $1}')
 	realfreespace=$((freespace+sysrcdspc))
 	echo "DEBUG: diskspace($1): freespace=${freespace}, sysrcdspc=${sysrcdspc}, realfreespace=${realfreespace}"
 	echo "Free space on ${1} is ${realfreespace}MB"
 	if [ "${realfreespace}" -lt "${MINSIZEMB}" ]
 	then
-		die "There is not enough free space on the USB-stick to copy the SystemRescuecd files."
+		die "There is not enough free space on the USB-stick to copy the LegacyRescuecd files."
 	fi
 	return 0
 }
@@ -565,7 +565,6 @@ then
 	PROG_MKVFATFS="${TMPDIR}/mkfs.vfat"
 	PROG_SYSLINUX="${TMPDIR}/syslinux"
 	PROG_DIALOG="${TMPDIR}/dialog"
-	export DIALOGRC="/dev/null"
 	# syslinux requires mtools
 	ln -s mtools ${TMPDIR}/mcopy
 	ln -s mtools ${TMPDIR}/mmove
@@ -593,7 +592,7 @@ fi
 
 if [ -z "${RUN_FROM_ISOROOT}" ] && ! cat /proc/mounts | awk '{print $2}' | grep -q -F '/memory'
 then
-	help_readman "$0: This script must be executed from SystemRescueCd"
+	help_readman "$0: This script must be executed from LegacyRescueCd"
 	exit 1
 fi
 

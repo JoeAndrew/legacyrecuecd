@@ -1,6 +1,6 @@
 #!/bin/sh
 # Convert the raw package-list to mediawiki table format
-# usage: cat sysresccd-packages-list.txt | ./pkglist-to-wm-table.sh > pkglist-for-mediawiki.txt
+# usage: cat legacyrescuecd-packages-list.txt | ./pkglist-to-wm-table.sh > pkglist-for-mediawiki.txt
 # input: gentoo package-list, one package per line such as "sys-block/parted-1.7.1
 # output: table formatted with the wikipedia syntax
 # goal: prepare the package list for the website

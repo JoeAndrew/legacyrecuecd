@@ -9,7 +9,7 @@ show-bookmarkbar=true
 toolbar-items=TabNew,Back,Forward,Next,ReloadStop,BookmarkAdd,Location,Search,Trash,
 load-on-startup=MIDORI_STARTUP_HOMEPAGE
 homepage=http://www.system-rescue-cd.org/
-location-entry-search=https://duckduckgo.com/?q=%s&t=sysrescue
+location-entry-search=https://duckduckgo.com/?q=%s&t=legacyrescueue
 always-show-tabbar=true
 enable-spell-checking=false
 enable-html5-database=true

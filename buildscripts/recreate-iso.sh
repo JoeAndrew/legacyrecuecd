@@ -12,8 +12,8 @@ VOLNAME="sysrcd-${VERSION_MAJ}.${VERSION_MIN}.${VERSION_PAT}"
 GRUBCFG="grub-${VERSION_MAJ}${VERSION_MIN}${VERSION_PAT}.cfg"
 ISODIR=/worksrc/isofiles
 TEMPDIR=/worksrc/catalyst/isotemp
-REPOSRC=/worksrc/sysresccd-src
-REPOBIN=/worksrc/sysresccd-bin
+REPOSRC=/worksrc/legacyrescuecd-src
+REPOBIN=/worksrc/legacyrescuecd-bin
 
 # ========= error handling ====================================================
 die()
@@ -26,10 +26,10 @@ die()
 usage()
 {
 	echo "Usage: $0 <arch> <options>"
-	echo "  arch = x86 | amd64 | sparc"
+	echo "  arch = x86 | amd64"
 }
 
-if [ "$1" = "x86" ] || [ "$1" = "amd64" ] || [ "$1" = "sparc" ]
+if [ "$1" = "x86" ] || [ "$1" = "amd64" ]
 then
 	CURARCH="$1"
 else
@@ -38,9 +38,9 @@ else
 fi
 
 # ========= copy files from the temp iso image ================================
-CURFILE="${ISODIR}/systemrescuecd-${CURARCH}-current.iso"
+CURFILE="${ISODIR}/legacyrescuecd-${CURARCH}-current.iso"
 MYDATE=$(date +%Y%m%d-%Hh%M)
-DESTDIR=/home/sysresccdiso
+DESTDIR=/home/legacyrescuecdiso
 mkdir -p ${DESTDIR}
 test -f "${CURFILE}" || die "Cannot find \"${CURFILE}\". Failed"
 mkdir -p /mnt/cdrom
@@ -134,12 +134,12 @@ then
 fi
 
 # ========= prepare the ISO image =============================================
-ISOFILE="${DESTDIR}/systemrescuecd-${CURARCH}-${VERSION}-${CDTYPE}-${MYDATE}.iso"
+ISOFILE="${DESTDIR}/legacyrescuecd-${CURARCH}-${VERSION}-${CDTYPE}-${MYDATE}.iso"
 
 iso_uuid=$(date -u +%Y-%m-%d-%H-%M-%S-00)
 iso_date=$(echo ${iso_uuid} | sed -e s/-//g)
 
-# 1. give "grub.cfg" a sysresccd version specific name
+# 1. give "grub.cfg" a legacyrescuecd version specific name
 mv "${TEMPDIR}/boot/grub/grub.cfg" "${TEMPDIR}/boot/grub/${GRUBCFG}"
 mkdir -p "${TEMPDIR}/efi/boot"
 
@@ -182,26 +182,22 @@ then
 		-volid ${VOLNAME} -o ${ISOFILE} ${TEMPDIR} || die "xorriso failed"
 	#/usr/bin/isohybrid ${ISOFILE}
 fi
-if [ "${CURARCH}" = "sparc" ]
-then
-	mkisofs -G /boot/isofs.b -J -V ${VOLNAME} -B ... -r -o ${ISOFILE} ${TEMPDIR} || die "mkisofs failed"
-fi
 
 # ========= copy list of packages ===============================================
-pkglist_full_std="/var/tmp/catalyst/tmp/default/livecd-stage2-i686-full/root/sysresccd-pkg.txt"
-pkglist_full_eix="/var/tmp/catalyst/tmp/default/livecd-stage2-i686-full/root/sysresccd-eix.txt"
-pkglist_mini_std="/var/tmp/catalyst/tmp/default/livecd-stage2-i686-mini/root/sysresccd-pkg.txt"
-pkglist_mini_eix="/var/tmp/catalyst/tmp/default/livecd-stage2-i686-mini/root/sysresccd-eix.txt"
-[ -f "${pkglist_full_std}" ] && cp "${pkglist_full_std}" "${REPOSRC}/pkglist/sysresccd-x86-packages-full-std-${CDVERS}.txt"
-[ -f "${pkglist_full_eix}" ] && cp "${pkglist_full_eix}" "${REPOSRC}/pkglist/sysresccd-x86-packages-full-eix-${CDVERS}.txt"
-[ -f "${pkglist_mini_std}" ] && cp "${pkglist_mini_std}" "${REPOSRC}/pkglist/sysresccd-x86-packages-mini-std-${CDVERS}.txt"
-[ -f "${pkglist_mini_eix}" ] && cp "${pkglist_mini_eix}" "${REPOSRC}/pkglist/sysresccd-x86-packages-mini-eix-${CDVERS}.txt"
+pkglist_full_std="/var/tmp/catalyst/tmp/default/livecd-stage2-i686-full/root/legacyrescuecd-pkg.txt"
+pkglist_full_eix="/var/tmp/catalyst/tmp/default/livecd-stage2-i686-full/root/legacyrescuecd-eix.txt"
+pkglist_mini_std="/var/tmp/catalyst/tmp/default/livecd-stage2-i686-mini/root/legacyrescuecd-pkg.txt"
+pkglist_mini_eix="/var/tmp/catalyst/tmp/default/livecd-stage2-i686-mini/root/legacyrescuecd-eix.txt"
+[ -f "${pkglist_full_std}" ] && cp "${pkglist_full_std}" "${REPOSRC}/pkglist/legacyrescuecd-x86-packages-full-std-${CDVERS}.txt"
+[ -f "${pkglist_full_eix}" ] && cp "${pkglist_full_eix}" "${REPOSRC}/pkglist/legacyrescuecd-x86-packages-full-eix-${CDVERS}.txt"
+[ -f "${pkglist_mini_std}" ] && cp "${pkglist_mini_std}" "${REPOSRC}/pkglist/legacyrescuecd-x86-packages-mini-std-${CDVERS}.txt"
+[ -f "${pkglist_mini_eix}" ] && cp "${pkglist_mini_eix}" "${REPOSRC}/pkglist/legacyrescuecd-x86-packages-mini-eix-${CDVERS}.txt"
 
 # ========= prepare the backup ==================================================
-tar -c -z -f "${DESTDIR}/systemrescuecd-${CURARCH}-${VERSION}-${CDTYPE}-${MYDATE}.tar.gz" --exclude='.git' ${REPOSRC} ${REPOBIN} /worksrc/sysresccd-win*
+tar -c -z -f "${DESTDIR}/legacyrescuecd-${CURARCH}-${VERSION}-${CDTYPE}-${MYDATE}.tar.gz" --exclude='.git' ${REPOSRC} ${REPOBIN} /worksrc/legacyrescuecd-win*
 
-# ========= force recompilation of sys-apps/sysresccd-scripts ===================
-rm -f /var/tmp/catalyst/packages/default/livecd-stage2-*/sys-apps/sysresccd-*.tbz2
+# ========= force recompilation of sys-apps/legacyrescuecd-scripts ===================
+rm -f /var/tmp/catalyst/packages/default/livecd-stage2-*/sys-apps/legacyrescuecd-*.tbz2
 rm -f /var/tmp/catalyst/packages/default/livecd-stage2-*/sys-kernel/genkernel-*.tbz2
 
 echo "End of $0"
